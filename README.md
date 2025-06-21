@@ -1,80 +1,85 @@
-# Picky App with Authentication
+🐣 Picky 앱 – 로그인/회원가입 기능 포함
+React와 Firebase를 이용해 만든 고민 투표 앱입니다.
+사용자는 로그인하고, 투표를 만들거나 참여하며, 여러 사람의 선택으로 고민을 해결할 수 있어요!
 
-A React application with Firebase Authentication and Firestore integration, featuring a login/signup system and a random item picker.
+✨ 주요 기능
+🔐 로그인 및 회원가입
+이메일/비밀번호로 로그인
 
-## Features
+이름, 이메일, 지역, 프로필 이미지 포함한 회원가입
 
-- 🔐 **Authentication System**
-  - Login with email/password
-  - Signup with comprehensive user profile
-  - Protected routes
-  - User session management
+로그인한 유저만 접근 가능한 보호된 페이지
 
-- 📝 **Signup Form Fields**
-  - First name and last name
-  - Email address
-  - Password with confirmation
-  - Region selection
-  - Profile image upload
+사용자 세션 관리
 
-- 🎲 **Picky App**
-  - Add multiple items to a list
-  - Randomly pick one item
-  - Remove items from the list
-  - Clean, responsive UI
+📝 회원가입 시 입력 항목
+이름 (성 / 이름)
 
-- 🛡️ **Security & Validation**
-  - Form validation with Yup schemas
-  - React Hook Form integration
-  - Firebase Authentication
-  - Firestore data storage
-  - Firebase Storage for images
+이메일 주소
 
-## Tech Stack
+비밀번호 / 비밀번호 확인
 
-- **Frontend**: React 19, TypeScript, Tailwind CSS
-- **Forms**: React Hook Form, Yup validation
-- **Authentication**: Firebase Authentication
-- **Database**: Firestore
-- **Storage**: Firebase Storage
-- **Routing**: React Router DOM
+지역 선택
 
-## Setup Instructions
+프로필 이미지 (※ 로컬 미리보기만, Firebase Storage는 사용 안 함)
 
-### 1. Install Dependencies
+🎲 Picky 기능
+여러 항목 중에서 하나를 랜덤으로 뽑기
 
-```bash
+항목 추가/삭제 가능
+
+깔끔하고 반응형 UI
+
+🛡️ 보안 및 유효성 검사
+Yup 스키마 기반 폼 검증
+
+react-hook-form 사용
+
+Firebase Authentication
+
+Firestore를 이용한 사용자 정보 저장
+
+🛠️ 사용 기술 (Tech Stack)
+프론트엔드: React 19, TypeScript, Tailwind CSS
+
+폼 처리: React Hook Form + Yup
+
+인증: Firebase Authentication
+
+DB: Firebase Firestore
+
+라우팅: React Router DOM
+
+📦 설치 방법
+1. 필요한 패키지 설치
+bash
+복사
+편집
 npm install
-```
+2. Firebase 프로젝트 설정
+Firebase 콘솔에서 새 프로젝트 생성
 
-### 2. Firebase Configuration
+이메일/비밀번호 로그인 기능 활성화
 
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Authentication with Email/Password sign-in method
-3. Create a Firestore database
-4. Enable Firebase Storage
-5. Get your Firebase configuration
+Firestore 데이터베이스 생성 (테스트 모드 OK)
 
-### 3. Update Firebase Config
+Firebase Storage는 사용하지 않음
 
-Replace the placeholder values in `src/firebase/config.ts`:
+Firebase 설정 정보 복사
 
-```typescript
+3. Firebase 설정 코드 수정 (src/firebase/config.ts)
+ts
+복사
+편집
 const firebaseConfig = {
-  apiKey: "your-actual-api-key",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id"
+  apiKey: "복사한 값",
+  authDomain: "복사한 값",
+  ...
 };
-```
-
-### 4. Firestore Security Rules
-
-Set up Firestore security rules:
-
-```javascript
+4. Firestore 보안 규칙 설정
+js
+복사
+편집
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -83,94 +88,61 @@ service cloud.firestore {
     }
   }
 }
-```
-
-### 5. Storage Security Rules
-
-Set up Firebase Storage security rules:
-
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /profile-images/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
-
-### 6. Run the Application
-
-```bash
-npm run dev
-```
-
-## Project Structure
-
-```
+📁 폴더 구조 예시
+bash
+복사
+편집
 src/
 ├── components/
-│   ├── Login.tsx          # Login form component
-│   ├── Signup.tsx         # Signup form component
-│   ├── Dashboard.tsx      # Main dashboard with navigation
-│   ├── ProtectedRoute.tsx # Route protection component
-│   └── Picky.tsx          # Random item picker
+│   ├── Login.tsx          # 로그인 폼
+│   ├── Signup.tsx         # 회원가입 폼
+│   ├── Dashboard.tsx      # 메인 페이지
+│   ├── ProtectedRoute.tsx # 로그인 여부 확인 라우트
+│   └── Picky.tsx          # 랜덤 뽑기 기능 컴포넌트
 ├── contexts/
-│   └── AuthContext.tsx    # Authentication context
+│   └── AuthContext.tsx    # 사용자 인증 정보 context
 ├── firebase/
-│   └── config.ts          # Firebase configuration
-└── App.tsx                # Main app with routing
-```
+│   └── config.ts          # Firebase 설정
+└── App.tsx                # 전체 라우팅
+🚀 실행 방법
+.env 파일에 Firebase 설정 추가:
 
-## Usage
+env
+복사
+편집
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_PROJECT_ID=...
+앱 실행:
 
-1. **Signup**: Navigate to `/signup` to create a new account
-2. **Login**: Navigate to `/login` to sign in
-3. **Dashboard**: After authentication, access the Picky app at `/dashboard`
-4. **Logout**: Use the logout button in the navigation bar
+bash
+복사
+편집
+npm run dev
+🔍 사용법 요약
+/signup → 회원가입
 
-## Environment Variables (Recommended)
+/login → 로그인
 
-Create a `.env` file in the project root:
+/dashboard → 뽑기 기능 페이지
 
-```env
-VITE_FIREBASE_API_KEY=your-api-key
-VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-VITE_FIREBASE_APP_ID=your-app-id
-```
+우측 상단 로그아웃 클릭 시 세션 종료
 
-Then update `src/firebase/config.ts` to use environment variables:
+⚙️ 명령어 정리
+npm run dev – 개발 서버 실행
 
-```typescript
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
-};
-```
+npm run build – 빌드
 
-## Available Scripts
+npm run preview – 빌드 결과 미리보기
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+npm run lint – 코드 검사
 
-## Contributing
+📬 오픈소스 참여 방법 (선택)
+이 레포지토리를 fork 하기
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+브랜치 생성 후 기능 개발
 
-## License
+Pull Request 생성하기
 
-This project is open source and available under the [MIT License](LICENSE).
-# picky
+📝 라이선스
+MIT 라이선스를 따릅니다. 자유롭게 사용하세요!
+

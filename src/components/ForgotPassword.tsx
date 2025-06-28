@@ -27,13 +27,13 @@ const ForgotPassword: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-extrabold text-pink-700">
+            <h2 className="mt-6 text-3xl font-extrabold text-[#404040]">
               이메일을 확인해 주세요
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-[#404040]">
               {email}로 비밀번호 재설정 링크를 보냈습니다
             </p>
           </div>
@@ -55,7 +55,7 @@ const ForgotPassword: React.FC = () => {
             <div className="flex items-center justify-center">
               <Link
                 to="/login"
-                className="font-medium text-pink-600 hover:text-pink-500"
+                className="font-medium text-[#2A2A2A] hover:text-[#404040]"
               >
                 로그인으로 돌아가기
               </Link>
@@ -67,13 +67,13 @@ const ForgotPassword: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-pink-700">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[#404040]">
             비밀번호 재설정
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-[#404040]">
             이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다.
           </p>
         </div>
@@ -90,7 +90,7 @@ const ForgotPassword: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
+              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-[#C5D9D5] placeholder-[#404040] text-[#404040] focus:outline-none focus:ring-[#C5D9D5] focus:border-[#C5D9D5] focus:z-10 sm:text-sm bg-white"
               placeholder="이메일 주소"
             />
           </div>
@@ -114,11 +114,11 @@ const ForgotPassword: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-[#404040] bg-[#C5D9D5] hover:bg-[#B8CEC9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C5D9D5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#404040]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -133,7 +133,7 @@ const ForgotPassword: React.FC = () => {
           <div className="flex items-center justify-center">
             <Link
               to="/login"
-              className="font-medium text-pink-600 hover:text-pink-500"
+              className="font-medium text-[#2A2A2A] hover:text-[#404040]"
             >
               로그인으로 돌아가기
             </Link>

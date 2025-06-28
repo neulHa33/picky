@@ -149,11 +149,11 @@ const MyPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-pink-50">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-pink-700">마이페이지</h1>
+          <h1 className="text-3xl font-bold">마이페이지</h1>
         </div>
 
         <div className="mb-6">
@@ -162,7 +162,7 @@ const MyPage: React.FC = () => {
               onClick={() => setActiveTab('created')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'created'
-                  ? 'border-pink-500 text-pink-600'
+                  ? 'border-pink-500'
                   : 'border-transparent text-gray-500 hover:text-pink-700 hover:border-pink-300'
               }`}
             >
@@ -182,7 +182,7 @@ const MyPage: React.FC = () => {
               onClick={() => setActiveTab('profile')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'profile'
-                  ? 'border-pink-500 text-pink-600'
+                  ? 'text-pink-600'
                   : 'border-transparent text-gray-500 hover:text-pink-700 hover:border-pink-300'
               }`}
             >
@@ -192,19 +192,19 @@ const MyPage: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow border border-pink-100">
+        <div className="bg-white rounded-lg shadow border">
           {activeTab === 'created' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">내가 쓴 글</h2>
                 <button
                   onClick={() => navigate('/create-vote')}
-                  className="px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition-colors"
+                  className="px-4 py-2 text-white rounded-md hover:bg-pink-600 transition-colors"
                 >
                   투표생성
                 </button>
               </div>
-              {renderVoteList(createdVotes, "You haven't created any votes yet.")}
+              {renderVoteList(createdVotes, "아직 투표를 생성하지 않았습니다.")}
             </div>
           )}
 
@@ -224,7 +224,7 @@ const MyPage: React.FC = () => {
             />
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
@@ -296,40 +296,40 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userProfile, onUpdate
 
   const validateForm = () => {
     if (!formData.firstName.trim()) {
-      setError('First name is required');
+      setError('이름을 입력해 주세요.');
       return false;
     }
     if (!formData.lastName.trim()) {
-      setError('Last name is required');
+      setError('성을 입력해 주세요.');
       return false;
     }
     if (!formData.region) {
-      setError('Region is required');
+      setError('지역을 선택해 주세요.');
       return false;
     }
     if (showEmailField && !formData.email.trim()) {
-      setError('Email is required');
+      setError('이메일을 입력해 주세요.');
       return false;
     }
     if (showEmailField && !/\S+@\S+\.\S+/.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError('올바른 이메일 주소를 입력해 주세요.');
       return false;
     }
     if (showPasswordFields) {
       if (!formData.currentPassword) {
-        setError('Current password is required');
+        setError('현재 비밀번호를 입력해 주세요.');
         return false;
       }
       if (!formData.newPassword) {
-        setError('New password is required');
+        setError('새로운 비밀번호를 입력해 주세요.');
         return false;
       }
       if (formData.newPassword.length < 6) {
-        setError('New password must be at least 6 characters long');
+        setError('새로운 비밀번호는 6자 이상이어야 합니다.');
         return false;
       }
       if (formData.newPassword !== formData.confirmPassword) {
-        setError('New passwords do not match');
+        setError('새로운 비밀번호가 일치하지 않습니다.');
         return false;
       }
     }
@@ -350,7 +350,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userProfile, onUpdate
     try {
       if (showEmailField || showPasswordFields) {
         if (!formData.currentPassword) {
-          throw new Error('Current password is required for email/password changes');
+          throw new Error('현재 비밀번호를 입력해 주세요.');
         }
 
         const credential = EmailAuthProvider.credential(
@@ -385,7 +385,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userProfile, onUpdate
         });
       }
 
-      setSuccess('Profile updated successfully!');
+      setSuccess('프로필이 성공적으로 업데이트되었습니다!');
       setShowPasswordFields(false);
       setShowEmailField(false);
       setFormData(prev => ({
@@ -399,7 +399,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ userProfile, onUpdate
       // Refresh user data
       onUpdate();
     } catch (err: any) {
-      setError(err.message || 'Error updating profile');
+      setError(err.message || '프로필 업데이트 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

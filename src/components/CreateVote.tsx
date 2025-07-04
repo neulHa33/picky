@@ -74,8 +74,15 @@ const CreateVote: React.FC = () => {
     }
     // Validate deadline
     const deadlineDate = new Date(data.deadline);
-    if (isNaN(deadlineDate.getTime()) || deadlineDate <= new Date()) {
+    const now = new Date();
+    const onYearLater = new Date();
+    onYearLater.setFullYear(now.getFullYear() + 1);
+    if (isNaN(deadlineDate.getTime()) || deadlineDate <= now) {
       setError('마감일은 현재 시간 이후여야 합니다.');
+      return;
+    }
+    if (deadlineDate > onYearLater) {
+      setError('마감일은 1년 이내로 설정해 주세요.');
       return;
     }
 
@@ -98,7 +105,7 @@ const CreateVote: React.FC = () => {
         totalVotes: 0
       };
       const docRef = await addDoc(collection(db, 'votes'), voteData);
-      console.log('투표 생성에 성공했습니다. ID:', docRef.id);
+      console.log('투표 생성에 성공했습니다.');
       reset();
       setOptions([
         { id: '1', text: '' },
@@ -215,6 +222,7 @@ const CreateVote: React.FC = () => {
                 {...register('deadline')}
                 id="deadline"
                 type="datetime-local"
+                max={new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().slice(0, 16)}
                 className={`block w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C5D9D5] focus:border-[#C5D9D5] text-base transition-colors bg-white ${
                   errors.deadline ? 'border-red-300' : 'border-[#C5D9D5]'
                 }`}

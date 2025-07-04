@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, query, orderBy, limit, startAfter, getCountFromServer } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useNavigate } from 'react-router-dom';
@@ -16,28 +16,30 @@ interface Vote {
 }
 
 const VoteList: React.FC = () => {
-  const navigate = useNavigate();
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [topVotes, setTopVotes] = useState<Vote[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'createdAt' | 'participants'>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const navigate = useNavigate(); 
+  const [votes, setVotes] = useState<Vote[]>([]); // 투표 목록 상태
+  const [topVotes, setTopVotes] = useState<Vote[]>([]); // 상단 인기 투표 3개 저장
+  const [loading, setLoading] = useState(true); // 로딩 상태
+  const [sortBy, setSortBy] = useState<'createdAt' | 'participants'>('createdAt'); // 정렬 기준(생성일/참여자수)
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc'); // 정렬 방향 (내림차순/오름차순)
   
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalVotes, setTotalVotes] = useState(0);
-  const [pageDocs, setPageDocs] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 번호
+  const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
+  const [totalVotes, setTotalVotes] = useState(0); // 총 투표 개수
+  const [pageDocs, setPageDocs] = useState<any[]>([]); // 페이지별 시작점 문서 저장
 
-  const VOTES_PER_PAGE = 10;
-
-  useEffect(() => {
-    fetchTotalVotes();
-    fetchTopVotes();
-  }, [sortBy, sortOrder]);
+  const VOTES_PER_PAGE = 10; // 페이지당 투표 수
 
   useEffect(() => {
-    fetchVotes();
-  }, [currentPage, sortBy, sortOrder]);
+    fetchTotalVotes(); // 전체 투표 수 계산
+    fetchVotes(); // 첫 페이지 투표 데이터 불러오기
+    fetchTopVotes(); // 인기 투표 3개 가져오기
+  }, []);
+
+  useEffect(() => {
+    fetchVotes(); // currentPage가 변경될 때마다 해당 페이지 투표 데이터를 새로 불러옴
+  }, [currentPage]);
+
 
   const fetchTotalVotes = async () => {
     try {
@@ -153,15 +155,30 @@ const VoteList: React.FC = () => {
     }
   };
 
-  const handleSortChange = (newSortBy: 'createdAt' | 'participants') => {
+  const sortedVotes = useMemo(() => {
+    const sorted = [...votes];
+    if (sortBy === 'participants') {
+      return sorted.sort((a, b) =>
+        sortOrder === 'asc'
+          ? a.participants - b.participants
+          : b.participants - a.participants
+      );
+    } else {
+      return sorted.sort((a, b) =>
+        sortOrder === 'asc'
+          ? a.createdAt.getTime() - b.createdAt.getTime()
+          : b.createdAt.getTime() - a.createdAt.getTime()
+      );
+    }
+  }, [votes, sortBy, sortOrder]);
+
+  const handleSortChange = (newSortBy: 'createdAt' | 'participants'): void => {
     if (sortBy === newSortBy) {
       setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
     } else {
       setSortBy(newSortBy);
       setSortOrder('desc');
     }
-    setCurrentPage(1);
-    setPageDocs([]);
   };
 
   const handlePageChange = (page: number) => {
@@ -340,7 +357,7 @@ const VoteList: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-[#C5D9D5]">
-                      {votes.map((vote) => (
+                      {sortedVotes.map((vote) => (
                         <tr
                           key={vote.id}
                           onClick={() => navigate(`/vote/${vote.id}`)}
@@ -375,7 +392,7 @@ const VoteList: React.FC = () => {
 
               {/* Mobile View */}
               <div className="lg:hidden space-y-4">
-                {votes.map((vote) => (
+                {sortedVotes.map((vote) => (
                   <div
                     key={vote.id}
                     onClick={() => navigate(`/vote/${vote.id}`)}

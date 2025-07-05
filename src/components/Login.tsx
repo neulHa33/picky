@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase/config';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const schema = yup.object({
@@ -18,6 +18,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
+  const message = location.state?.message;
 
   const {
     register,
@@ -36,7 +39,7 @@ const Login: React.FC = () => {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       console.log('User logged in successfully');
       reset();
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || 'An error occurred during login');
     } finally {
@@ -65,7 +68,7 @@ const Login: React.FC = () => {
           updatedAt: new Date(),
         });
       }
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || 'Google 로그인 중 오류가 발생했습니다.');
     } finally {
@@ -84,6 +87,11 @@ const Login: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-bold text-[#404040] mb-4">
               로그인
             </h2>
+            {message && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700">{message}</p>
+              </div>
+            )}
             <p className="text-[#404040] text-base sm:text-lg">
               계정이 없으신가요?{' '}
               <Link to="/signup" className="font-medium text-[#2A2A2A] hover:text-[#404040] transition-colors">

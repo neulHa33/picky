@@ -4,10 +4,11 @@ import Button from '../ui/Button';
 interface FormActionsProps {
   saving: boolean;
   onCancel: () => void;
+  onDelete?: () => void;
   submitLabel?: string;
 }
 
-const FormActions: React.FC<FormActionsProps> = ({ saving, onCancel, submitLabel = '저장' }) => (
+const FormActions: React.FC<FormActionsProps> = ({ saving, onCancel, onDelete, submitLabel = '저장' }) => (
   <div className="flex justify-end space-x-3">
     <Button
       type="button"
@@ -16,6 +17,15 @@ const FormActions: React.FC<FormActionsProps> = ({ saving, onCancel, submitLabel
     >
       취소
     </Button>
+    {onDelete && (
+      <Button
+        type="button"
+        onClick={onDelete}
+        className="border border-red-500 text-white bg-red-600 hover:bg-red-700"
+      >
+        삭제
+      </Button>
+    )}
     <Button
       type="submit"
       loading={saving}

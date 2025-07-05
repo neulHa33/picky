@@ -15,6 +15,7 @@ interface VoteEditFormProps {
   onRemoveOption: (id: string) => void;
   onCancel: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  onDelete?: () => void;
 }
 
 const VoteEditForm: React.FC<VoteEditFormProps> = ({
@@ -28,6 +29,7 @@ const VoteEditForm: React.FC<VoteEditFormProps> = ({
   onRemoveOption,
   onCancel,
   onSubmit,
+  onDelete,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
@@ -38,7 +40,7 @@ const VoteEditForm: React.FC<VoteEditFormProps> = ({
           <div className="text-sm text-red-700">{error}</div>
         </div>
       )}
-      <FormActions saving={saving} onCancel={onCancel} submitLabel="저장" />
+      <FormActions saving={saving} onCancel={onCancel} onDelete={onDelete} submitLabel="저장" />
     </form>
   );
 };

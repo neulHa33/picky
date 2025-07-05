@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, increment, serverTimestamp, setDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from './layout/Layout';
@@ -26,6 +26,14 @@ interface Vote {
   userVotes?: { [userId: string]: string }; // 사용자별 투표 옵션 추적
 }
 
+interface Comment {
+  id: string;
+  content: string;
+  createdBy: string;
+  createdByEmail: string;
+  createdAt: Date;
+}
+
 const VoteDetail: React.FC = () => {
   const { voteId } = useParams<{ voteId: string }>();
   const { currentUser } = useAuth();
@@ -41,6 +49,12 @@ const VoteDetail: React.FC = () => {
   const [userVotedOption, setUserVotedOption] = useState<string | null>(null);
   const [isDeadlineOver, setIsDeadlineOver] = useState(false);
   const [serverNow, setServerNow] = useState<Date | null>(null);
+  
+  // Comment states
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   useEffect(() => {
     // 서버시간
@@ -112,6 +126,36 @@ const VoteDetail: React.FC = () => {
     };
     if (serverNow !== null) fetchVote();
   }, [voteId, currentUser, serverNow]);
+
+  // Real-time comments listener
+  useEffect(() => {
+    if (!voteId) return;
+
+    const commentsQuery = query(
+      collection(db, 'votes', voteId, 'comments'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(commentsQuery, (snapshot) => {
+      const commentsData: Comment[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          content: data.content,
+          createdBy: data.createdBy,
+          createdByEmail: data.createdByEmail,
+          createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' 
+            ? data.createdAt.toDate() 
+            : new Date()
+        };
+      });
+      setComments(commentsData);
+    }, (error) => {
+      console.error('Error fetching comments:', error);
+    });
+
+    return () => unsubscribe();
+  }, [voteId]);
 
   const handleVote = async () => {
     if (!selectedOption || !vote || !currentUser) return;
@@ -202,6 +246,29 @@ const VoteDetail: React.FC = () => {
       setError(err.message || 'Error canceling vote');
     } finally {
       setCanceling(false);
+    }
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !voteId || !newComment.trim()) return;
+
+    setSubmittingComment(true);
+    setCommentError(null);
+
+    try {
+      await addDoc(collection(db, 'votes', voteId, 'comments'), {
+        content: newComment.trim(),
+        createdBy: currentUser.uid,
+        createdByEmail: currentUser.email,
+        createdAt: serverTimestamp()
+      });
+
+      setNewComment('');
+    } catch (err: any) {
+      setCommentError(err.message || '댓글 작성 중 오류가 발생했습니다.');
+    } finally {
+      setSubmittingComment(false);
     }
   };
 
@@ -328,7 +395,7 @@ const VoteDetail: React.FC = () => {
                       : 'border-gray-200 hover:border-pink-300 hover:bg-pink-25'
                   } ${!hasVoted && !isDeadlineOver ? 'cursor-pointer' : ''}`}
                   onClick={() => {
-                    if (!hasVoted && !isDeadlineOver) {
+                    if (!hasVoted && !isDeadlineOver && currentUser) {
                       setSelectedOption(option.id);
                     }
                   }}
@@ -383,7 +450,7 @@ const VoteDetail: React.FC = () => {
               {!hasVoted ? (
                 <button
                   onClick={handleVote}
-                  disabled={!selectedOption || voting}
+                  disabled={!selectedOption || voting || !currentUser}
                   className="w-full sm:w-auto px-8 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md font-medium"
                 >
                   {voting ? (
@@ -432,6 +499,79 @@ const VoteDetail: React.FC = () => {
               <div className="text-sm text-red-700">{error}</div>
             </div>
           )}
+        </div>
+
+        {/* 댓글 섹션 */}
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-pink-100">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+            댓글 ({comments.length})
+          </h2>
+
+          {/* 댓글 작성 폼 */}
+          {currentUser ? (
+            <form onSubmit={handleSubmitComment} className="mb-8">
+              <div className="mb-4">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="댓글을 작성해주세요..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                  rows={3}
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm text-gray-500">
+                    {newComment.length}/500
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={!newComment.trim() || submittingComment}
+                    className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                  >
+                    {submittingComment ? '작성 중...' : '댓글 작성'}
+                  </button>
+                </div>
+              </div>
+              {commentError && (
+                <div className="rounded-lg bg-red-50 p-4 border border-red-200">
+                  <div className="text-sm text-red-700">{commentError}</div>
+                </div>
+              )}
+            </form>
+          ) : (
+            <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-gray-600 text-center">
+                댓글을 작성하려면 <button onClick={() => navigate('/login')} className="text-pink-600 hover:text-pink-700 font-medium">로그인</button>이 필요합니다.
+              </p>
+            </div>
+          )}
+
+          {/* 댓글 목록 */}
+          <div className="space-y-4">
+            {comments.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
+              </div>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900">
+                        {comment.createdByEmail}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {comment.createdAt.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </Layout>

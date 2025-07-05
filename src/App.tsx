@@ -9,6 +9,7 @@ import VoteDetail from './components/VoteDetail'
 import EditVote from './components/EditVote'
 import MyPage from './components/MyPage'
 import VoteList from './components/VoteList'
+import SearchResults from './components/SearchResults'
 
 function App() {
   return (
@@ -17,11 +18,17 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/votes" element={<ProtectedRoute><VoteList /></ProtectedRoute>} />
+          
+          /* 공개 라우트 */
+          <Route path="/votes" element={<VoteList />} />
+          <Route path="/vote/:voteId" element={<VoteDetail />} />
+          <Route path="/search" element={<SearchResults />} />
+
+          /* 비공개 라우트 */
           <Route path="/create-vote" element={<ProtectedRoute><CreateVote /></ProtectedRoute>} />
-          <Route path="/vote/:voteId" element={<ProtectedRoute><VoteDetail /></ProtectedRoute>} />
           <Route path="/edit-vote/:voteId" element={<ProtectedRoute><EditVote /></ProtectedRoute>} />
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+          
           <Route path="/" element={<ProtectedRoute><VoteList /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

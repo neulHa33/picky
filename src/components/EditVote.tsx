@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from './layout/Navbar';
@@ -147,6 +147,18 @@ const EditVote: React.FC = () => {
     navigate('/mypage');
   }, [navigate]);
 
+  const handleDelete = async () => {
+    if (!window.confirm('정말로 이 글을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.')) return;
+    if (!voteId) return;
+    try {
+      const voteRef = doc(db, 'votes', voteId);
+      await deleteDoc(voteRef);
+      navigate('/mypage');
+    } catch (err: any) {
+      setError(err.message || 'Error deleting vote');
+    }
+  };
+
   if (state.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -196,6 +208,7 @@ const EditVote: React.FC = () => {
               onRemoveOption={onRemoveOption}
               onCancel={onCancel}
               onSubmit={handleSubmit}
+              onDelete={handleDelete}
             />
           </div>
         </div>

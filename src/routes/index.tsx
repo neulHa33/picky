@@ -9,23 +9,43 @@ import VoteDetail from '../components/VoteDetail';
 import CreateVote from '../components/CreateVote';
 import EditVote from '../components/EditVote';
 import MyPage from '../components/MyPage';
+import SearchResults from '../components/SearchResults';
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes - Accessible without login */}
+      <Route path="/" element={<VoteList />} />
+      <Route path="/votes" element={<VoteList />} />
+      <Route path="/vote/:voteId" element={<VoteDetail />} />
+      <Route path="/search" element={<SearchResults />} />
+      
+      {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot" element={<ForgotPassword />} />
       
-      {/* Protected Routes */}
-      <Route path="/" element={<ProtectedRoute><VoteList /></ProtectedRoute>} />
-      <Route path="/votes" element={<ProtectedRoute><VoteList /></ProtectedRoute>} />
-      <Route path="/vote/:voteId" element={<ProtectedRoute><VoteDetail /></ProtectedRoute>} />
-      <Route path="/write" element={<ProtectedRoute><CreateVote /></ProtectedRoute>} />
-      <Route path="/create-vote" element={<ProtectedRoute><CreateVote /></ProtectedRoute>} />
-      <Route path="/edit-vote/:voteId" element={<ProtectedRoute><EditVote /></ProtectedRoute>} />
-      <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+      {/* Protected Routes - Require login */}
+      <Route path="/write" element={
+        <ProtectedRoute message="투표를 생성하려면 로그인이 필요합니다.">
+          <CreateVote />
+        </ProtectedRoute>
+      } />
+      <Route path="/create-vote" element={
+        <ProtectedRoute message="투표를 생성하려면 로그인이 필요합니다.">
+          <CreateVote />
+        </ProtectedRoute>
+      } />
+      <Route path="/edit-vote/:voteId" element={
+        <ProtectedRoute message="투표를 수정하려면 로그인이 필요합니다.">
+          <EditVote />
+        </ProtectedRoute>
+      } />
+      <Route path="/mypage" element={
+        <ProtectedRoute message="마이페이지에 접근하려면 로그인이 필요합니다.">
+          <MyPage />
+        </ProtectedRoute>
+      } />
       
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />

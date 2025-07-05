@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { collection, getDocs, query, orderBy, limit, startAfter, getCountFromServer } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ const VoteList: React.FC = () => {
   const [totalVotes, setTotalVotes] = useState(0); // 총 투표 개수
   const [pageDocs, setPageDocs] = useState<any[]>([]); // 페이지별 시작점 문서 저장
 
-  const VOTES_PER_PAGE = 10; // 페이지당 투표 수
+  const VOTES_PER_PAGE = 5; // 페이지당 투표 수
 
   useEffect(() => {
     fetchTotalVotes(); // 전체 투표 수 계산
@@ -38,7 +38,7 @@ const VoteList: React.FC = () => {
 
   useEffect(() => {
     fetchVotes(); // currentPage가 변경될 때마다 해당 페이지 투표 데이터를 새로 불러옴
-  }, [currentPage]);
+  }, [currentPage, sortBy, sortOrder]);
 
 
   const fetchTotalVotes = async () => {
@@ -110,7 +110,9 @@ const VoteList: React.FC = () => {
           totalVotes: data.totalVotes || 0,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
-          createdAt: data.createdAt.toDate()
+          createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' 
+            ? data.createdAt.toDate() 
+            : new Date()
         };
       });
 
@@ -146,7 +148,9 @@ const VoteList: React.FC = () => {
           totalVotes: data.totalVotes || 0,
           createdBy: data.createdBy,
           createdByEmail: data.createdByEmail,
-          createdAt: data.createdAt.toDate()
+          createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' 
+            ? data.createdAt.toDate() 
+            : new Date()
         };
       });
       setTopVotes(votes);
@@ -181,11 +185,11 @@ const VoteList: React.FC = () => {
     }
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-  };
+  }, []);
 
-  const renderPagination = () => {
+  const renderPagination = useMemo(() => {
     const pages = [];
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -236,7 +240,7 @@ const VoteList: React.FC = () => {
     }
 
     return pages;
-  };
+  }, [currentPage, totalPages, handlePageChange]);
 
   if (loading && currentPage === 1) {
     return (
@@ -423,8 +427,8 @@ const VoteList: React.FC = () => {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex justify-center mt-8">
-                  <div className="flex">
-                    {renderPagination()}
+                  <div className="flex gap-2">
+                    {renderPagination}
                   </div>
                 </div>
               )}
